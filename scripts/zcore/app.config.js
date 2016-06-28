@@ -11,7 +11,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			$rootScope.userGlobal.email = userDetails.email;
 			$rootScope.userGlobal.uid = userDetails.uid;
 			$rootScope.userGlobal.code = btoa(userDetails.email);
-			$rootScope.userGlobal.access = $rootScope.emails[$rootScope.userGlobal.code];
+			$rootScope.userGlobal.access = $rootScope.emails[$rootScope.userGlobal.code].type;
 			$rootScope.userGlobal.account = "vitu";
 			callbackFunction();
 	};

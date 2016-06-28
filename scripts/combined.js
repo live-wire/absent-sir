@@ -365,7 +365,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			$rootScope.userGlobal.email = userDetails.email;
 			$rootScope.userGlobal.uid = userDetails.uid;
 			$rootScope.userGlobal.code = btoa(userDetails.email);
-			$rootScope.userGlobal.access = $rootScope.emails[$rootScope.userGlobal.code];
+			$rootScope.userGlobal.access = $rootScope.emails[$rootScope.userGlobal.code].type;
 			$rootScope.userGlobal.account = "vitu";
 			callbackFunction();
 	};
@@ -508,7 +508,7 @@ $scope.addUser=function(userVar)
 	console.log(note);
 	var encoded = btoa(userVar.email);
 	console.log(encoded);
-	if($rootScope.emails[encoded] == undefined)
+	if(!$rootScope.emails[encoded].type)
 	{
 		console.log("Check with Administrator!");
 	}
@@ -682,7 +682,7 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
 
 			console.log("redirect");
 
-			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code]);
+			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code].type);
 
 
 		};

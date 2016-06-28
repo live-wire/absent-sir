@@ -11,7 +11,7 @@ $scope.addUser=function(userVar)
 	console.log(note);
 	var encoded = btoa(userVar.email);
 	console.log(encoded);
-	if($rootScope.emails[encoded] == undefined)
+	if(!$rootScope.emails[encoded].type)
 	{
 		console.log("Check with Administrator!");
 	}

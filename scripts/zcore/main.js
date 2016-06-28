@@ -33,7 +33,7 @@
 
 			console.log("redirect");
 
-			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code]);
+			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code].type);
 
 
 		};

@@ -1,5 +1,5 @@
 (function(){
-angular.module("absentApp").controller("LoginCtrl",['$scope','$rootScope','firebaseService','$q','$location',function($scope,$rootScope,firebaseService,$q,$location){
+angular.module("absentApp").controller("LoginCtrl",['$scope','$rootScope','firebaseService','$q','$location','growl',function($scope,$rootScope,firebaseService,$q,$location,growl){
 
 if($rootScope.isLoggedIn())
 {
@@ -11,9 +11,10 @@ $scope.addUser=function(userVar)
 	console.log(note);
 	var encoded = btoa(userVar.email);
 	console.log(encoded);
-	if(!$rootScope.emails[encoded].type)
+	if($rootScope.emails[encoded]==undefined)
 	{
 		console.log("Check with Administrator!");
+		growl.error("Check with Administrator!", {title: 'EMAIL NOT FOUND'});
 	}
 	else
 	{
@@ -26,7 +27,9 @@ $scope.addUser=function(userVar)
 				console.log(userVar);
 				firebaseService.signIn(userVar.email,userVar.password).then(function(){
 					console.log("LoggedIn");
-				},function(err){console.log(err);});
+				},function(err){console.log(err);
+					growl.error(err, {title: 'ERROR'});
+				});
 			}
 		});
 	}

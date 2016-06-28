@@ -1,5 +1,5 @@
 (function(){
-	angular.module("absentApp").controller("MainCtrl",['$scope','$rootScope','firebaseService','$location','$timeout',function($scope,$rootScope,firebaseService,$location,$timeout){
+	angular.module("absentApp").controller("MainCtrl",['$scope','$rootScope','firebaseService','$location','$timeout','growl',function($scope,$rootScope,firebaseService,$location,$timeout,growl){
 
 		$rootScope.$on("CallParentRefreshMethod", function(){
            $scope.refreshLocation();
@@ -18,7 +18,7 @@
 					$rootScope.tryLogIn(user,$scope.refreshLocation);
 					$scope.initialize();
 					},
-					function(err){console.log(err);});
+					function(err){growl.error(err, {title: 'ERROR'});});
 
 		    // User is signed in.
 			}

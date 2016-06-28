@@ -1,6 +1,7 @@
 (function(){
 angular.module("absentApp",
 	['ui.bootstrap',
-	'ngRoute']);
+	'ngRoute',
+	'angular-growl']);
 
 })();

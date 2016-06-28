@@ -8,8 +8,9 @@
 	<link rel="stylesheet" type="text/css" href="css/combined.css" />
 </head>
 <body ng-controller="MainCtrl as maincontroller" ng-init="fetchFromDb()">
-
+<div ng-show="isLoggedIn()">
 <header></header>
+</div>
 
   <div class="container"><a class="btn btn-success">{{yo}}</a>
 <a class-"btn btn-warn" >{{account}}</a>

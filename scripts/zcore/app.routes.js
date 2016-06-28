@@ -2,6 +2,10 @@
 
 angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
     $routeProvider.
+    when('/login', {
+        templateUrl: 'views/login.html',
+        controller: 'LoginCtrl'
+      }).
       when('/student', {
         templateUrl: 'views/studentview.html',
         controller: 'StudentCtrl'
@@ -11,11 +15,11 @@ angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
         controller: 'TeacherCtrl'
       }).
       when('/admin', {
-        templateUrl: 'templates/adminview.html',
+        templateUrl: 'views/adminview.html',
         controller: 'AdminCtrl'
       }).
       otherwise({
-        redirectTo: '/student'
+        redirectTo: '/login'
       });
   }]);
 

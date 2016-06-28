@@ -356,12 +356,84 @@ angular.module("absentApp",
 
 angular.module("absentApp").run(['$route', function() {}]);
 
+angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location','$timeout',function($rootScope,$q,firebaseService,$location,$timeout){
+
+	$rootScope.tryLogIn = function(userDetails,callbackFunction){
+
+			console.log("Trying to log in now");
+			$rootScope.userGlobal = {};
+			$rootScope.userGlobal.email = userDetails.email;
+			$rootScope.userGlobal.uid = userDetails.uid;
+			$rootScope.userGlobal.code = btoa(userDetails.email);
+			$rootScope.userGlobal.access = $rootScope.emails[$rootScope.userGlobal.code];
+			$rootScope.userGlobal.account = "vitu";
+			callbackFunction();
+	};
+
+	//Keep adding initialization functions here as promises
+	$rootScope.init = function(){
+		return $rootScope.fetchEmails();
+	};
+
+	$rootScope.fetchEmails = function(){
+
+		if($rootScope.emails==undefined){
+			return firebaseService.getResponse("Clients/vitu/emails")
+		.then(
+			function(emails)
+			{	$rootScope.emails=emails;
+				return emails;}
+			,
+			function(err)
+			{console.log("FAIL-FETCH-EMAILS"+err);
+				return err;}
+			);
+		}
+		else
+		{
+
+			return $q(function(resolve,reject){
+				resolve("Emails Already Fetched");
+			});
+		}
+	};
+
+
+
+
+
+
+	$rootScope.isLoggedIn = function(){
+		if($rootScope.userGlobal == undefined){
+			return false;
+		}
+		else
+			return true;
+
+	};
+
+	$rootScope.logOut = function(){
+		return firebaseService.logOut().then(function(){
+			$rootScope.userGlobal = undefined;
+			return "logout success";
+
+		},function(err){return err;});
+	};
+
+
+
+}]);
+
 })();
 ;
 (function(){
 
 angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
     $routeProvider.
+    when('/login', {
+        templateUrl: 'views/login.html',
+        controller: 'LoginCtrl'
+      }).
       when('/student', {
         templateUrl: 'views/studentview.html',
         controller: 'StudentCtrl'
@@ -371,21 +443,51 @@ angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
         controller: 'TeacherCtrl'
       }).
       when('/admin', {
-        templateUrl: 'templates/adminview.html',
+        templateUrl: 'views/adminview.html',
         controller: 'AdminCtrl'
       }).
       otherwise({
-        redirectTo: '/student'
+        redirectTo: '/login'
       });
   }]);
 
 })();
 ;
 (function(){
-angular.module("absentApp").controller("HeaderCtrl",['$scope',function($scope){
+angular.module("absentApp").controller("HeaderCtrl",['$scope','$rootScope',function($scope,$rootScope){
+
+		$rootScope.$on("loggedIn", function(){
+           $scope.init();
+        });
+		$scope.logOutClick = function(){
+			$rootScope.logOut().then(function(message){
+           	console.log(message);
+           },function(err){console.log(err);});
+
+		};
+        $scope.init = function(){
+			$scope.account = $rootScope.userGlobal.account;
+			$scope.role = $rootScope.userGlobal.access;
+		};
+
+}]);
+
+})();
+;
+(function(){
+angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope',function($scope,$rootScope){
+
+	//Don't touch this
+	if($rootScope.isLoggedIn() && $rootScope.userGlobal.access!='admin')
+	{
+		$rootScope.$emit("CallParentRefreshMethod", {});
+	}
+	else if(!$rootScope.isLoggedIn())
+	{
+		$rootScope.$emit("CallParentLoginMethod",{});
+	}
 
 
-// $scope.account = "VIT University";
 
 
 
@@ -394,25 +496,86 @@ angular.module("absentApp").controller("HeaderCtrl",['$scope',function($scope){
 })();
 ;
 (function(){
-angular.module("absentApp").controller("AdminCtrl",function(){
+angular.module("absentApp").controller("LoginCtrl",['$scope','$rootScope','firebaseService','$q','$location',function($scope,$rootScope,firebaseService,$q,$location){
 
-});
+if($rootScope.isLoggedIn())
+{
+	$rootScope.$emit("CallParentRefreshMethod", {});
+}
+$scope.addUser=function(userVar)
+{
+	$rootScope.fetchEmails().then(function(note){
+	console.log(note);
+	var encoded = btoa(userVar.email);
+	console.log(encoded);
+	if($rootScope.emails[encoded] == undefined)
+	{
+		console.log("Check with Administrator!");
+	}
+	else
+	{
+		firebaseService.addUser(userVar.email,userVar.password).then(function(userDetails){
+			console.log("New User LoggedIn");
+		},function(err){
+			if(err.code == "auth/email-already-in-use")
+			{
+				console.log("Already in use!");
+				console.log(userVar);
+				firebaseService.signIn(userVar.email,userVar.password).then(function(){
+					console.log("LoggedIn");
+				},function(err){console.log(err);});
+			}
+		});
+	}
+
+	},function(err){console.log(err);});
+
+};
+
+
+
+
+}]);
 
 })();
 ;
 (function(){
-angular.module("absentApp").controller("StudentCtrl",function(){
+angular.module("absentApp").controller("StudentCtrl",['$scope','$rootScope',function($scope,$rootScope){
 
-});
+	//Don't touch this
+	if($rootScope.isLoggedIn() && $rootScope.userGlobal.access!='student')
+	{
+		$rootScope.$emit("CallParentRefreshMethod", {});
+	}
+	else if(!$rootScope.isLoggedIn())
+	{
+		$rootScope.$emit("CallParentLoginMethod",{});
+	}
+
+
+
+
+
+}]);
 
 })();
 ;
 (function(){
-angular.module("absentApp").controller("TeacherCtrl",function(){
+angular.module("absentApp").controller("TeacherCtrl",['$scope','$rootScope',function($scope,$rootScope){
+
+	//Don't touch this
+	if($rootScope.isLoggedIn() && $rootScope.userGlobal.access!='teacher')
+	{
+		$rootScope.$emit("CallParentRefreshMethod", {});
+	}
+	else if(!$rootScope.isLoggedIn())
+	{
+		$rootScope.$emit("CallParentLoginMethod",{});
+	}
 
 
 
-});
+}]);
 
 })();
 ;
@@ -433,7 +596,7 @@ angular.module("absentApp").directive('header', function() {
 ;
 (function(){
 
-angular.module("absentApp").service("firebaseService",function(){
+angular.module("absentApp").service("firebaseService",['$q',function($q){
 
 	var config = {
     apiKey: "AIzaSyDlXSVBOW9fl96oY4oyTo055jUVd9Y-6dA",
@@ -442,40 +605,113 @@ angular.module("absentApp").service("firebaseService",function(){
     storageBucket: "firetester-b276e.appspot.com",
   	};
   	firebase.initializeApp(config);
-  this.getFire = function () {
+    this.getFire = function () {
       return firebase;
     };
-});
 
+
+    this.getResponse = function(path) {
+      return $q(function(resolve, reject) {
+
+      firebase.database().ref(path).once('value', function(snapshot) {
+        if(snapshot!=undefined)
+        resolve(snapshot.val());
+        else
+        reject("NullResponse");
+      });
+
+      });
+    };
+    this.signIn = function(email,password){
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+
+    };
+
+    this.addUser = function(email,password){
+
+          return firebase.auth().createUserWithEmailAndPassword(email, password);
+
+    };
+
+    this.logOut = function(){
+
+          return firebase.auth().signOut();
+    };
+
+    this.getCurrentUser = function(){
+          return firebase.auth().currentUser;
+    };
+
+
+}]);
 
 })();
 ;
 (function(){
-	angular.module("absentApp").controller("MainCtrl",['$scope','firebaseService',function($scope,firebaseService){
-		$scope.initialize = function()
-		{
+	angular.module("absentApp").controller("MainCtrl",['$scope','$rootScope','firebaseService','$location','$timeout',function($scope,$rootScope,firebaseService,$location,$timeout){
+
+		$rootScope.$on("CallParentRefreshMethod", function(){
+           $scope.refreshLocation();
+        });
+        $rootScope.$on("CallParentLoginMethod", function(){
+           $scope.refreshLocationLogin();
+        });
+
+		firebaseService.getFire().auth().onAuthStateChanged(function(user) {
+
+			if (user) {
+				console.log(user);
+				console.log("^User should be logged in!");
+				$rootScope.fetchEmails().then(function(message){
+					console.log(message);
+					$rootScope.tryLogIn(user,$scope.refreshLocation);
+					$scope.initialize();
+					},
+					function(err){console.log(err);});
+
+		    // User is signed in.
+			}
+			else {
+
+			console.log($rootScope.userGlobal);
+           	$scope.refreshLocationLogin();
+		    // No user is signed in.
+			}
+		});
+		$scope.refreshLocation = function(){
+
+			console.log("redirect");
+
+			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code]);
+
+
+		};
+		$scope.refreshLocationLogin = function(){
+
+			console.log("redirect-login");
+
+
+			$timeout(function(){$location.path('/login').replace();});
+
 
 		};
 
+		$scope.initialize = function(){
+			$rootScope.$broadcast("loggedIn", {});
+		};
+
 		$scope.yo = "You can't see me! My time is now!";
-		$scope.role = "Teacher";
-		$scope.account = "----";
+
 
 		$scope.fetchFromDb=function(){
-			firebaseService.getFire().database().ref('Univ/id').on('value', function(snapshot) {
+		// 	firebaseService.getFire().database().ref('Clients/vitu/name').on('value', function(snapshot) {
 
-  			$scope.$apply(function() {
-    			$scope.account = snapshot.val();
-			});
-		});
+  // 			$scope.$apply(function() {
+  //   			$scope.account = snapshot.val();
+		// 	});
+		// });
 
-			firebaseService.getFire().database().ref('Univ/emails/c3R1ZGVudDFAZ21haWwuY29t').on('value', function(snapshot) {
-				console.log("AccessRole Fetched");
 
-  			$scope.$apply(function() {
-    			$scope.role = snapshot.val();
-			});
-		});
 
 
 		};

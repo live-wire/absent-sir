@@ -1,0 +1,11 @@
+<div class="row"><div class="container jumbotron">
+
+<form novalidate name="loginForm" class="css-form">
+
+    <input ng-class="{ error: loginForm.user.email.$invalid}" class="form-control" type="email" ng-model="user.email" placeholder="email" required/><br>
+    <input type="password" class="form-control" ng-model="user.password" placeholder="Password" required><br>
+    <button type="submit" ng-click="addUser(user)" class="btn btn-success">Go</button>
+
+ </form>
+
+</div></div>

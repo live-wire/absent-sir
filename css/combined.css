@@ -18,3 +18,13 @@ div.navbar-collapse.collapse {
 div.navbar-collapse.collapse.in {
 	max-height: 2000px;
 }
+
+input.ng-invalid.ng-dirty{
+	border-color: #e96666;
+    outline: 0;
+    outline-color: initial;
+    outline-style: initial;
+    outline-width: 0px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233, 102, 102, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233, 102, 102, 0.6);
+}

@@ -1,6 +1,6 @@
 (function(){
 
-angular.module("absentApp").service("firebaseService",function(){
+angular.module("absentApp").service("firebaseService",['$q',function($q){
 
 	var config = {
     apiKey: "AIzaSyDlXSVBOW9fl96oY4oyTo055jUVd9Y-6dA",
@@ -9,10 +9,44 @@ angular.module("absentApp").service("firebaseService",function(){
     storageBucket: "firetester-b276e.appspot.com",
   	};
   	firebase.initializeApp(config);
-  this.getFire = function () {
+    this.getFire = function () {
       return firebase;
     };
-});
 
+
+    this.getResponse = function(path) {
+      return $q(function(resolve, reject) {
+
+      firebase.database().ref(path).once('value', function(snapshot) {
+        if(snapshot!=undefined)
+        resolve(snapshot.val());
+        else
+        reject("NullResponse");
+      });
+
+      });
+    };
+    this.signIn = function(email,password){
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+
+    };
+
+    this.addUser = function(email,password){
+
+          return firebase.auth().createUserWithEmailAndPassword(email, password);
+
+    };
+
+    this.logOut = function(){
+
+          return firebase.auth().signOut();
+    };
+
+    this.getCurrentUser = function(){
+          return firebase.auth().currentUser;
+    };
+
+
+}]);
 
 })();

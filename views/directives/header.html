@@ -1,13 +1,17 @@
 <nav class="navbar navbar-default" role="navigation">
       <!-- Brand and toggle get grouped for better mobile display -->
+      <div class='container'>
       <div class="navbar-header">
 
-        <a class="navbar-brand" href="#">Attendance</a>
+        <a class="navbar-brand" href="#">Absent-Sir</a>
       </div>
 
       <ul class="nav navbar-nav">
           <li class="active"><a href="#">Access-Role:&nbsp&nbsp{{role}}</a></li>
-          <li ><a href="#">&nbsp;&nbsp;</a></li>
-          <li><a class="btn btn-danger disabled" style="color:white !important" href="#">{{account}}</a></li>
+          <li><a href="#">&nbsp;&nbsp;</a></li>
+          <li><a href="#">{{account}}</a></li>
         </ul>
+
+        <p class="navbar-right"><a class="btn btn-danger navbar-btn" ng-click="logOutClick()">LogOut</a></p>
+        </div>
 </nav>

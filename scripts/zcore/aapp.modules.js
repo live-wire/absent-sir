@@ -1,7 +1,11 @@
 (function(){
+
 angular.module("absentApp",
-	['ui.bootstrap',
-	'ngRoute',
-	'angular-growl']);
+	['ngRoute',
+	'ngAnimate',
+	'ui.bootstrap',
+	'angular-growl',
+	'mgcrea.ngStrap'
+	]);
 
 })();

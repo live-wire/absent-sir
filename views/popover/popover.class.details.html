@@ -1,0 +1,11 @@
+<div class="popover" tabindex="-1">
+  <div class="arrow"></div>
+  <h5 style="color:#888;padding-left:10%;font-weight:bold;margin-bottom:0px">{{selectedClass.id}}</h5>
+  <div class="popover-content">
+  <h4><span class="glyphicon glyphicon-tag" aria-hidden="true"></span> <span class="label label-info label-md">{{selectedClass.course}}</span><span ng-show="selectedClass.error" class="label label-danger label-md">{{selectedClass.error}}</span></h4>
+  <h5 ><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>  {{selectedClass.location}}</h4>
+  <h5 ><span class="glyphicon glyphicon-knight" aria-hidden="true"></span>  {{selectedClass.teacherName}}</h4>
+  <a class="btn btn-warning btn-sm" ng-show="selectedClass.id">Launch {{selectedClass.id}} <span class="glyphicon glyphicon-send" aria-hidden="true"></span></a>
+  </div>
+
+</div>

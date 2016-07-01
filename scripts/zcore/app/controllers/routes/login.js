@@ -5,37 +5,36 @@ if($rootScope.isLoggedIn())
 {
 	$rootScope.$emit("CallParentRefreshMethod", {});
 }
-$scope.addUser=function(userVar)
+$scope.signIn=function(userVar)
 {
-	$rootScope.fetchEmails().then(function(note){
-	console.log(note);
 	var encoded = btoa(userVar.email);
-	console.log(encoded);
-	if($rootScope.emails[encoded]==undefined)
-	{
+	$rootScope.fetchSingleUser(encoded).then(function(obj){
+	console.log(obj);
+	if(obj){
+		firebaseService.signIn(userVar.email,userVar.password).then(function(){
+						console.log("LoggedIn");
+					},function(err){
+						console.log(err);
+						growl.error(err.message, {title: 'ERROR'});
+			});
+
+	}
+	else{
 		console.log("Check with Administrator!");
 		growl.error("Check with Administrator!", {title: 'EMAIL NOT FOUND'});
-	}
-	else
-	{
-		firebaseService.addUser(userVar.email,userVar.password).then(function(userDetails){
-			console.log("New User LoggedIn");
-		},function(err){
-			if(err.code == "auth/email-already-in-use")
-			{
-				console.log("Already in use!");
-				console.log(userVar);
-				firebaseService.signIn(userVar.email,userVar.password).then(function(){
-					console.log("LoggedIn");
-				},function(err){console.log(err);
-					growl.error(err, {title: 'ERROR'});
-				});
-			}
-		});
-	}
 
+	}
+// firebaseService.addUser(userVar.email,userVar.password).then(function(userDetails){
+			// 	console.log("New User LoggedIn");
+			// },function(err){
+			// 	if(err.code == "auth/email-already-in-use")
+			// 	{
+			// 		console.log("Already in use!");
+			// 		console.log(userVar);
+
+			// 	}
+			// });
 	},function(err){console.log(err);});
-
 };
 
 

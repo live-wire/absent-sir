@@ -22,6 +22,9 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
         resolve(snapshot.val());
         else
         reject("NullResponse");
+      },function(err){
+        console.log("Access Denied",err);
+        reject("Access Denied");
       });
 
       });

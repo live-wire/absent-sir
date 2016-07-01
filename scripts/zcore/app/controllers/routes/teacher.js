@@ -1,5 +1,5 @@
 (function(){
-angular.module("absentApp").controller("TeacherCtrl",['$scope','$rootScope',function($scope,$rootScope){
+angular.module("absentApp").controller("TeacherCtrl",['$scope','$rootScope','firebaseService',function($scope,$rootScope,firebaseService){
 
 	//Don't touch this
 	if($rootScope.isLoggedIn() && $rootScope.userGlobal.access!='teacher')
@@ -10,6 +10,8 @@ angular.module("absentApp").controller("TeacherCtrl",['$scope','$rootScope',func
 	{
 		$rootScope.$emit("CallParentLoginMethod",{});
 	}
+
+
 
 
 

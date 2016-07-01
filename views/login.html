@@ -4,7 +4,7 @@
 
     <input ng-class="{ error: loginForm.user.email.$invalid}" class="form-control" type="email" ng-model="user.email" placeholder="email" required/><br>
     <input type="password" class="form-control" ng-model="user.password" placeholder="Password" required><br>
-    <button type="submit" ng-click="addUser(user)" class="btn btn-success">Go</button>
+    <button type="submit" ng-click="signIn(user)" class="btn btn-success">Go</button>
 
  </form>
 

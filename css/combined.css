@@ -36,3 +36,39 @@ input.ng-invalid.ng-dirty{
     -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233, 102, 102, 0.6);
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233, 102, 102, 0.6);
 }
+
+.stylish-input-group .input-group-addon{
+    background: white !important;
+}
+.stylish-input-group .form-control{
+	border-right:0;
+	box-shadow:0 0 0;
+	border-color:#ccc;
+}
+.stylish-input-group button{
+    border:0;
+    background:transparent;
+}
+.popover:focus{
+	outline:none;
+}
+.popover{
+	z-index:90909090;
+}
+
+.table-hover > tbody > tr:hover {
+    background: #ccc;
+    color: white;
+    transition: 0.3s ease-in;
+}
+hr{
+	margin-bottom: 0px;
+}
+.teacher-row{
+	background:rgba(91, 192, 222,0.2) !important;
+}
+
+.ng-dirty.ng-not-empty {
+	border:2px solid #eea236;
+}
+body{font-family: 'Lato', sans-serif;}

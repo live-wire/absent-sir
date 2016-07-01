@@ -9,12 +9,11 @@
         });
 
 		firebaseService.getFire().auth().onAuthStateChanged(function(user) {
-
 			if (user) {
 				console.log(user);
 				console.log("^User should be logged in!");
-				$rootScope.fetchEmails().then(function(message){
-					console.log(message);
+				$rootScope.fetchSingleUser(btoa(user.email)).then(function(obj){
+					console.log(obj);
 					$rootScope.tryLogIn(user,$scope.refreshLocation);
 					$scope.initialize();
 					},
@@ -31,7 +30,7 @@
 		});
 		$scope.refreshLocation = function(){
 
-			console.log("redirect");
+			console.log("redirect",$rootScope.emails);
 
 			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code].type);
 

@@ -2,19 +2,31 @@
 
 angular.module("absentApp").run(['$route', function() {}]);
 
-angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location','$timeout',function($rootScope,$q,firebaseService,$location,$timeout){
+angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location','$timeout','growl',function($rootScope,$q,firebaseService,$location,$timeout,growl){
 
 	$rootScope.tryLogIn = function(userDetails,callbackFunction){
 
 			console.log("Trying to log in now");
-			$rootScope.userGlobal = {};
-			$rootScope.userGlobal.email = userDetails.email;
-			$rootScope.userGlobal.uid = userDetails.uid;
-			$rootScope.userGlobal.code = btoa(userDetails.email);
-			$rootScope.userGlobal.access = $rootScope.singleUser.type;
-			$rootScope.userGlobal.account = "vitu";
-			$rootScope.openPorts();
-			$rootScope.init().then(function(note){console.log(note);callbackFunction();},function(err){console.log(err,"ROOTSCOPE INIT FAILED")});
+			$rootScope.init().then(function(note){
+				console.log(note);
+				console.log("SHOULD BE CALLED AFTER INIT COMPLETE");
+				$rootScope.openPorts();
+
+				$rootScope.userGlobal = {};
+				$rootScope.userGlobal.email = userDetails.email;
+				$rootScope.userGlobal.uid = userDetails.uid;
+				$rootScope.userGlobal.code = btoa(userDetails.email);
+				$rootScope.userGlobal.access = $rootScope.singleUser.type;
+				$rootScope.userGlobal.account = "vitu";
+
+				$rootScope.$broadcast("loggedIn", {});
+				callbackFunction();},
+				function(err){console.log("INIT FAILED -- ACCESS DENIED -- ",err);
+				growl.error("Initialization Failed",{title:"ACCESS DENIED"});
+			});
+
+
+
 	};
 	//Keep adding initialization functions here as promises
 	$rootScope.init = function(){
@@ -33,13 +45,20 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			return firebaseService.getResponse("Clients/vitu/emails")
 		.then(
 			function(emails)
-			{	$rootScope.emails=emails;
-				return "Emails Fetch Complete";
+			{
+				$rootScope.emails=emails;
+				return $q(function(resolve,reject){
+				resolve("Emails Fetched SUCCESS");
+				});
 			}
 			,
 			function(err)
 			{console.log("FAIL-FETCH-EMAILS"+err);
-				return err;}
+
+				return $q(function(resolve,reject){
+				reject("Emails fatch FAILURE");
+			});
+			}
 			);
 		}
 		else
@@ -57,11 +76,16 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 		.then(
 			function(courses)
 			{	$rootScope.courses=courses;
-				return "courseFetchComplete";}
+				return $q(function(resolve,reject){
+				resolve("Courses Fetched - SUCCESS");
+			});
+			}
 			,
 			function(err)
 			{console.log("FAIL-FETCH-COURSES"+err);
-				return err;}
+				return $q(function(resolve,reject){
+				reject("Courses Fetched - FAILURE");
+			});}
 			);
 		}
 		else

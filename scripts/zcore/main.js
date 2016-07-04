@@ -15,7 +15,6 @@
 				$rootScope.fetchSingleUser(btoa(user.email)).then(function(obj){
 					console.log(obj);
 					$rootScope.tryLogIn(user,$scope.refreshLocation);
-					$scope.initialize();
 					},
 					function(err){growl.error(err, {title: 'ERROR'});});
 
@@ -44,10 +43,6 @@
 			$timeout(function(){$location.path('/login').replace();});
 
 
-		};
-
-		$scope.initialize = function(){
-			$rootScope.$broadcast("loggedIn", {});
 		};
 
 		$scope.yo = "You can't see me! My time is now!";

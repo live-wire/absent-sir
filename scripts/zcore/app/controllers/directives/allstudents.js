@@ -83,6 +83,7 @@ $rootScope.$on("loggedIn", function(){
 		}
 	};
 	$scope.selectNewClass = function(classCode){
+
 		$scope.selectedClass = {};
 		firebaseService.getResponse("Clients/vitu/classes/"+classCode).then(function(classVar){
 			if(classVar){

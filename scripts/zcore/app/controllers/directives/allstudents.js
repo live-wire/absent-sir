@@ -19,6 +19,8 @@ $rootScope.$on("loggedIn", function(){
 
 	//THIS CODE IS TO MAKE ALL_STUDENTS DIRECTIVE WORK -- -- --
 	//-----------------------DIRECTIVE------------------------------
+	$scope.isCoursesCollapsed = false;
+	$scope.isisAllStudentsCollapsed = false;
 	$rootScope.$on("rootScopeUpdated", function(){
     	$timeout(function(){$scope.refresh();});
 	});

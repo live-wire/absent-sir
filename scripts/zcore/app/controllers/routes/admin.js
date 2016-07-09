@@ -1,5 +1,5 @@
 (function(){
-angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope','$timeout','firebaseService','$modal','ParsedData','fileUpload',function($scope,$rootScope,$timeout,firebaseService,$modal,ParsedData,fileUpload){
+angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope','$timeout','firebaseService','$modal','ParsedData',function($scope,$rootScope,$timeout,firebaseService,$modal,ParsedData){
 
 	//Don't touch this
 	if($rootScope.isLoggedIn() && $rootScope.userGlobal.access!='admin')
@@ -20,9 +20,19 @@ angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope','$time
 	};
 
 	$scope.callbackFunction = function(arr){
-		console.log(JSON.stringify(arr));
+		var updates = {};
+		console.log(arr);
+		var path = 'Classes/';
+		angular.forEach(arr, function(value, key) {
+			console.log(value[0]+value[1]);
+			var emailEncoded = btoa(value[0]);
+			updates[emailEncoded+"/type"]=value[1];	
+		});
+		return firebaseService.update(path,updates).then(function(){
+			console.log("Emails-UPDATED");
+		},function(err){console.log("ERROR-EMAILS-UPLOAD",err);});		
 	};
-	 $scope.uploadFile = function(){
+	 $scope.parseSelectedFile = function(){
 	     var file = $scope.myFile;
 		 console.log('in controller file value is ' );
 	     console.log(file);

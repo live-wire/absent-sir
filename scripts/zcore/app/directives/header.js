@@ -35,6 +35,7 @@ angular.module("absentApp").directive('fileModel', ['$parse', function ($parse) 
               modelSetter(scope, element[0].files[0]);
               console.log(scope);
            });
+           scope.parseSelectedFile();
         });
      }
   };

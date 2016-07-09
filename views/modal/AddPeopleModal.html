@@ -6,8 +6,9 @@
 				<h4 class="modal-title">Upload people Information</h4>
 			</div>
 			<div class="modal-body">
-				 <input type = "file" file-model = "myFile"/>
-      		     <button ng-click = "uploadFile()">upload me</button>
+				 <button class="file-upload btn btn-success" >     
+				 <span class="glyphicon glyphicon-upload"></span>       
+				 <input type="file" file-model = "myFile" class="file-input">Choose File</button>
       		</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" ng-click="$hide()">Close</button>

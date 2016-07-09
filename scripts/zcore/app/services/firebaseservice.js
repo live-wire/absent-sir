@@ -49,6 +49,14 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
           return firebase.auth().currentUser;
     };
 
+    this.update = function(path,updates){
+      return firebase.database().ref(path).update(updates).then(function(){
+          return $q(function(resolve,reject){resolve(path,"UpdateSuccess");});
+        },function(err){
+          return $q(function(resolve,reject){reject("UpdateFailure",err);  });
+        });
+    };
+
 
 }]);
 

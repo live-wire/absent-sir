@@ -22,7 +22,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 				$rootScope.$broadcast("loggedIn", {});
 				callbackFunction();},
 				function(err){console.log("INIT FAILED -- ACCESS DENIED -- ",err);
-				growl.error("Initialization Failed",{title:"ACCESS DENIED"});
+				//growl.error("Initialization Failed",{title:"ACCESS DENIED"});
 			});
 
 
@@ -56,7 +56,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			{console.log("FAIL-FETCH-EMAILS"+err);
 
 				return $q(function(resolve,reject){
-				reject("Emails fatch FAILURE");
+				reject("Emails fetch FAILURE");
 			});
 			}
 			);
@@ -110,7 +110,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 	};
 	$rootScope.closePorts=function(){
 		firebaseService.getFire().database().ref("Clients/vitu/emails").off();
-		firebaseService.getFire().database().ref("Clients/vitu/courses").off()
+		firebaseService.getFire().database().ref("Clients/vitu/courses").off();
 	};
 
 
@@ -132,6 +132,29 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			return "logout success";
 
 		},function(err){return err;});
+	};
+
+	$rootScope.clone=function (obj) {
+    	if (null == obj || "object" != typeof obj) return obj;
+    	var copy = obj.constructor();
+    	for (var attr in obj) {
+        	if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    	}
+    return copy;
+	};
+
+	$rootScope.shallowEquals=function (a, b) {
+	    for(var key in a) {
+	        if(!(key in b) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    for(var key in b) {
+	        if(!(key in a) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    return true;
 	};
 
 

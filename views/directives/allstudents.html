@@ -1,5 +1,14 @@
 <div class="row">
-<div class = "col-xs-12 col-sm-12 col-lg-4 col-md-4">
+<div class="container"><div class="container">
+		<label class="checkbox-inline"><input type="checkbox" ng-model = "isAllStudentsCollapsed">Students/Teachers <span ng-if="isAllStudentsCollapsed" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span><span ng-if="!isAllStudentsCollapsed" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> </label>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<label class="checkbox-inline"><input type="checkbox" ng-model = "isCoursesCollapsed">Courses <span ng-if="isCoursesCollapsed" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span><span ng-if="!isCoursesCollapsed" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label>
+	</div></div>
+	<br>
+</div>
+<div class="row">
+<div uib-collapse="isAllStudentsCollapsed">
+<div class = "col-xs-12 col-sm-12 col-lg-8 col-md-8">
 	<div style="f6f6f6" class="well" ng-show="students">
 
 		<div class="row">
@@ -19,8 +28,8 @@
 		<div class="row">
 			<br><div style=" height: 200px !important;overflow: scroll;">
 			<table class="table table-hover col-xs-12 col-sm-12 col-md-12 col-lg-6">
-				<thead><th>Name</th><th>Id</th><th ng-show="false">Email</th></thead>
-				<tbody><tr style="cursor:pointer;color:#444;" ng-repeat="student in students | orderBy:student.id | filter:searchStudent" ng-class="{'teacher-row':student.type=='teacher'}" ng-click="selectStudent(student.uid,student.type)"><td>{{student.name}}  <span ng-if="student.type=='teacher'" style="color:#337ab7;" class="glyphicon glyphicon-knight" aria-hidden="true"></span></td><td>{{student.id}}</td><td ng-show="false">{{student.email}}</td>
+				<thead><th>Name</th><th>Id</th><th>Email</th></thead>
+				<tbody><tr style="cursor:pointer;color:#444;" ng-repeat="student in students | orderBy:student.id | filter:searchStudent" ng-class="{'teacher-row':student.type=='teacher'}" ng-click="selectStudent(student.uid,student.type)"><td>{{student.name}}  <span ng-if="student.type=='teacher'" style="color:#337ab7;" class="glyphicon glyphicon-knight" aria-hidden="true"></span></td><td>{{student.id}}</td><td>{{student.email}}</td>
 				</tr></tbody>
 			</table>
 			</div>
@@ -28,7 +37,7 @@
 	</div>
 </div>
 <div class = "col-xs-12 col-sm-12 col-lg-4 col-md-4">
-	<div style="color:#444;" class="well" ng-show="students" ng-init="selectStudent(students[0].uid,students[0].type)" >
+	<div style="color:#444;height: 300px !important;overflow: scroll;" class="well" ng-show="students" ng-init="selectStudent(students[0].uid,students[0].type)" ><h4 ng-if="userGlobal.access=='admin'"><span style="color: #666;position:absolute;top: 5px;right: 20px;padding: 5px;border-radius: 5px;background: #ddd;cursor: pointer;" class="glyphicon glyphicon-pencil" aria-hidden="true" data-template-url="views/aside/edit.user.details.html" data-placement="right" data-animation="am-slide-right" bs-aside="aside" data-container="body" ng-click="(selectStudent.type=='teacher')?title='Edit Teacher Details':title='Edit Student Details'"></span></h4>
 		<div><h4><span ng-if="selectedStudent.type=='teacher'" class="glyphicon glyphicon-knight" aria-hidden="true"></span><span ng-if="selectedStudent.type=='student'" class="glyphicon glyphicon-user" aria-hidden="true"></span>   {{selectedStudent.name }}<span style="color:#ccc;" ng-hide="selectedStudent.id!=null">This user hasn't signed up yet!</span></h4></div>
 		<div ng-if="selectedStudent.type=='student'"><h3><span class="label label-success">{{selectedStudent.id}}</span></h3></div>
 		<div ng-if="selectedStudent.type=='teacher'"><h3><span class="label label-primary">{{selectedStudent.id}}</span></h3></div>
@@ -41,8 +50,10 @@
 		</ul>
 
 	</div>
-</div>
-<div class = "col-xs-12 col-sm-12 col-lg-4 col-md-4">
+</div></div></div>
+<div class="row">
+<div uib-collapse="isCoursesCollapsed">
+<div class = "col-xs-12 col-sm-12 col-lg-12 col-md-12">
 	<div style="f6f6f6" class="well" ng-show="students" >
 
 		<div class="row">
@@ -61,13 +72,13 @@
 		</div>
 		<div class="row">
 			<br>
-			<div style=" height: 200px !important;">
-			<table class="table col-sm-6 col-md-6 col-lg-6">
+			<div style=" height: 200px !important;overflow:scroll;padding:25px;">
+			<table class="table col-sm-12 col-md-12 col-lg-12">
 				<thead><th>Id</th><th>Name</th><th>Classes</th></thead>
 				<tbody><tr style="color:#444;" ng-repeat="course in coursesLocal | filter:searchCourses"><td><span class="label label-info">{{course.id}}</span></td><td>{{course.name}}</td><td><ul class="list-inline"><li ng-repeat="(key,val) in course.classes" style="cursor:pointer;" ng-click="selectNewClass(key)" data-animation="am-flip-x" data-template-url="views/popover/popover.class.details.html" data-placement="right" data-auto-close="1" bs-popover><span class="label label-warning">{{key}}</span></li></ul></td>
 				</tr></tbody></table>
 		</div>
 	</div>
 </div>
-</div>
+</div></div>
 </div>

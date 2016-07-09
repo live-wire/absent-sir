@@ -19,6 +19,8 @@ $rootScope.$on("loggedIn", function(){
 
 	//THIS CODE IS TO MAKE ALL_STUDENTS DIRECTIVE WORK -- -- --
 	//-----------------------DIRECTIVE------------------------------
+	$scope.isCoursesCollapsed = false;
+	$scope.isisAllStudentsCollapsed = false;
 	$rootScope.$on("rootScopeUpdated", function(){
     	$timeout(function(){$scope.refresh();});
 	});
@@ -68,6 +70,7 @@ $rootScope.$on("loggedIn", function(){
 		firebaseService.getResponse("Clients/vitu/students/"+uid).then(function(student){
 			if(student==null){student={};}
 			student.type='student';
+			student.uid=uid;
 			$scope.selectedStudent = student;
 			console.log("StudentSelected",student);
 
@@ -77,6 +80,7 @@ $rootScope.$on("loggedIn", function(){
 		firebaseService.getResponse("Clients/vitu/teachers/"+uid).then(function(teacher){
 			if(teacher == null){teacher={};}
 			teacher.type='teacher';
+			teacher.uid=uid;
 			$scope.selectedStudent = teacher;
 			console.log("TeacherSelected",teacher);
 			},function(err){growl.error(err.message,{title:'ERROR'})});
@@ -104,6 +108,40 @@ $rootScope.$on("loggedIn", function(){
 		},function(err){growl.error(err.message,{title:'ERROR'});});
 
 	};
+	$scope.updateUser = function(newUserVar,oldUserVar){
+		if(!$rootScope.shallowEquals(oldUserVar,newUserVar))
+		{
+			var updates={};
+			updates["id"] = newUserVar.id;
+			updates["name"] = newUserVar.name;
+			updateEmails().then(updateUser).then(function(message){
+				growl.success("Update success!");
+				$scope.selectedStudent = $rootScope.clone(newUserVar);
+				},
+				function(err){
+					console.log(err);
+					growl.error("Update Failed");
+				});
+			function updateEmails()
+			{
+				var path = "Clients/vitu/emails/"+btoa(newUserVar.email);
+				return firebaseService.update(path,updates);
+			}
+			function updateUser()
+			{
+				updates["address"] = newUserVar.address;
+				updates["contact"] = newUserVar.contact;
+				var path = "Clients/vitu/"+newUserVar.type+"s/"+newUserVar.uid;
+				console.log(path,"----",updates);
+				return firebaseService.update(path,updates);
+			}
+
+		}
+		else
+			{growl.warning("Nothing to update!");}
+
+	};
+
 	//-----------------------------DIRECTIVE-------------------------------------
 
 

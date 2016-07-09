@@ -475,7 +475,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 				$rootScope.$broadcast("loggedIn", {});
 				callbackFunction();},
 				function(err){console.log("INIT FAILED -- ACCESS DENIED -- ",err);
-				growl.error("Initialization Failed",{title:"ACCESS DENIED"});
+				//growl.error("Initialization Failed",{title:"ACCESS DENIED"});
 			});
 
 
@@ -509,7 +509,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			{console.log("FAIL-FETCH-EMAILS"+err);
 
 				return $q(function(resolve,reject){
-				reject("Emails fatch FAILURE");
+				reject("Emails fetch FAILURE");
 			});
 			}
 			);
@@ -563,7 +563,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 	};
 	$rootScope.closePorts=function(){
 		firebaseService.getFire().database().ref("Clients/vitu/emails").off();
-		firebaseService.getFire().database().ref("Clients/vitu/courses").off()
+		firebaseService.getFire().database().ref("Clients/vitu/courses").off();
 	};
 
 
@@ -585,6 +585,29 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			return "logout success";
 
 		},function(err){return err;});
+	};
+
+	$rootScope.clone=function (obj) {
+    	if (null == obj || "object" != typeof obj) return obj;
+    	var copy = obj.constructor();
+    	for (var attr in obj) {
+        	if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    	}
+    return copy;
+	};
+
+	$rootScope.shallowEquals=function (a, b) {
+	    for(var key in a) {
+	        if(!(key in b) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    for(var key in b) {
+	        if(!(key in a) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    return true;
 	};
 
 
@@ -641,6 +664,8 @@ $rootScope.$on("loggedIn", function(){
 
 	//THIS CODE IS TO MAKE ALL_STUDENTS DIRECTIVE WORK -- -- --
 	//-----------------------DIRECTIVE------------------------------
+	$scope.isCoursesCollapsed = false;
+	$scope.isisAllStudentsCollapsed = false;
 	$rootScope.$on("rootScopeUpdated", function(){
     	$timeout(function(){$scope.refresh();});
 	});
@@ -690,6 +715,7 @@ $rootScope.$on("loggedIn", function(){
 		firebaseService.getResponse("Clients/vitu/students/"+uid).then(function(student){
 			if(student==null){student={};}
 			student.type='student';
+			student.uid=uid;
 			$scope.selectedStudent = student;
 			console.log("StudentSelected",student);
 
@@ -699,6 +725,7 @@ $rootScope.$on("loggedIn", function(){
 		firebaseService.getResponse("Clients/vitu/teachers/"+uid).then(function(teacher){
 			if(teacher == null){teacher={};}
 			teacher.type='teacher';
+			teacher.uid=uid;
 			$scope.selectedStudent = teacher;
 			console.log("TeacherSelected",teacher);
 			},function(err){growl.error(err.message,{title:'ERROR'})});
@@ -726,6 +753,40 @@ $rootScope.$on("loggedIn", function(){
 		},function(err){growl.error(err.message,{title:'ERROR'});});
 
 	};
+	$scope.updateUser = function(newUserVar,oldUserVar){
+		if(!$rootScope.shallowEquals(oldUserVar,newUserVar))
+		{
+			var updates={};
+			updates["id"] = newUserVar.id;
+			updates["name"] = newUserVar.name;
+			updateEmails().then(updateUser).then(function(message){
+				growl.success("Update success!");
+				$scope.selectedStudent = $rootScope.clone(newUserVar);
+				},
+				function(err){
+					console.log(err);
+					growl.error("Update Failed");
+				});
+			function updateEmails()
+			{
+				var path = "Clients/vitu/emails/"+btoa(newUserVar.email);
+				return firebaseService.update(path,updates);
+			}
+			function updateUser()
+			{
+				updates["address"] = newUserVar.address;
+				updates["contact"] = newUserVar.contact;
+				var path = "Clients/vitu/"+newUserVar.type+"s/"+newUserVar.uid;
+				console.log(path,"----",updates);
+				return firebaseService.update(path,updates);
+			}
+
+		}
+		else
+			{growl.warning("Nothing to update!");}
+
+	};
+
 	//-----------------------------DIRECTIVE-------------------------------------
 
 
@@ -848,37 +909,114 @@ if($rootScope.isLoggedIn())
 {
 	$rootScope.$emit("CallParentRefreshMethod", {});
 }
+$scope.isSignUpHidden = true;
+$scope.isLogInHidden = false;
 $scope.signIn=function(userVar)
 {
-	var encoded = btoa(userVar.email);
-	$rootScope.fetchSingleUser(encoded).then(function(obj){
-	console.log(obj);
-	if(obj){
 		firebaseService.signIn(userVar.email,userVar.password).then(function(){
 						console.log("LoggedIn");
 					},function(err){
 						console.log(err);
 						growl.error(err.message, {title: 'ERROR'});
 			});
-
-	}
-	else{
-		console.log("Check with Administrator!");
-		growl.error("Check with Administrator!", {title: 'EMAIL NOT FOUND'});
-
-	}
-// firebaseService.addUser(userVar.email,userVar.password).then(function(userDetails){
-			// 	console.log("New User LoggedIn");
-			// },function(err){
-			// 	if(err.code == "auth/email-already-in-use")
-			// 	{
-			// 		console.log("Already in use!");
-			// 		console.log(userVar);
-
-			// 	}
-			// });
-	},function(err){console.log(err);});
 };
+$scope.signUp = function(userVar)
+{
+ if(!$scope.signupForm.$valid)
+ 	{
+ 		growl.warning("All the fields are mandatory.", {title: 'SignUp Warning'});
+ 	}
+ 	else{
+
+
+	 	var encoded = btoa(userVar.email);
+		$rootScope.fetchSingleUser(encoded).then(function(obj){
+		console.log(obj);
+		if(obj){
+			//promise chain -- functions defined below
+			addUser().then(updateGroups).then(updateUserRecords).then(updateEmails).then(function(message){
+				console.log(message);
+				growl.success("USER Creation Success");
+				$rootScope.logOut();
+				$rootScope.inProgress = false;
+				$scope.signIn(userVar);
+
+			},function(message){
+					var user = firebaseService.getCurrentUser();
+					if(user){
+					user.delete().then(function() {
+					  // User deleted.
+					}, function(error) {
+  						// An error happened.
+					});
+					}
+				console.log("message");
+				growl.error("Please retry in some time.",{title:"FAILED"});});
+
+
+			function addUser(){
+				$rootScope.inProgress = true;
+				console.log(" CreatingUser ");
+				return firebaseService.addUser(userVar.email,userVar.password).then(function(userDetails){
+					console.log("New User LoggedIn",userDetails);
+					userVar.uid = userDetails.uid;
+					userVar.type = obj.type;
+					//$rootScope.logOut();
+					return $q(function(resolve,reject){
+						resolve("UserCreationSuccess");
+					});
+
+				},function(err){
+					if(err.code == "auth/email-already-in-use")
+					{
+
+						console.log("Already in use!",userVar);
+						growl.error("Try Logging in!", {title: 'USER ALREADY SIGNED UP'});
+
+					}
+					return $q(function(resolve,reject){
+						reject("UserCreationFailed",err);
+					});
+				});
+			}
+			function updateGroups(message){
+				var updates = {};
+  				updates[userVar.uid] = true;
+  				var path = 'Clients/vitu/groups/'+userVar.type;
+				return firebaseService.update(path,updates);
+			}
+
+			function updateUserRecords(message){
+				var updates = {};
+				updates[userVar.uid+"/name"]=userVar.name;
+				updates[userVar.uid+"/address"]=userVar.address;
+				updates[userVar.uid+"/contact"]=userVar.phone;
+				updates[userVar.uid+"/email"]=userVar.email;
+				updates[userVar.uid+"/id"]=userVar.id;
+				var path = 'Clients/vitu/'+userVar.type+'s/';
+				return firebaseService.update(path,updates);
+			}
+			function updateEmails(message){
+				var emailEncoded = btoa(userVar.email);
+				var updates = {};
+				updates[emailEncoded+"/name"]=userVar.name;
+				updates[emailEncoded+"/id"]=userVar.id;
+				updates[emailEncoded+"/uid"]=userVar.uid;
+				var path = 'Clients/vitu/emails/';
+				return firebaseService.update(path,updates);
+			}
+
+		}
+		else{
+			growl.error("Check with Administrator!", {title: 'EMAIL NOT FOUND'});
+
+		}
+		},function(err){console.log(err);});
+
+ 	}
+};
+
+
 
 
 
@@ -1067,31 +1205,6 @@ angular.module("absentApp").directive('fileModel', ['$parse', function ($parse) 
 ;
 (function(){
 
-angular.module("absentApp").service('fileUpload', ['$http', function ($http) {
-   this.uploadFileToUrl = function(file, uploadUrl){
-      var fd = new FormData();
-      fd.append('file', file);
-      console.log(fd);
-      console.log("in here");
-      $http.post(uploadUrl, fd, {
-         transformRequest: angular.identity,
-         headers: {'Content-Type': undefined}
-      })
-   
-      .success(function(){
-      })
-   
-      .error(function(){
-      });
-   }
-}]);
-
-
-
-})();
-;
-(function(){
-
 angular.module("absentApp").service("firebaseService",['$q',function($q){
 
 	var config = {
@@ -1141,6 +1254,14 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
           return firebase.auth().currentUser;
     };
 
+    this.update = function(path,updates){
+      return firebase.database().ref(path).update(updates).then(function(){
+          return $q(function(resolve,reject){resolve(path,"UpdateSuccess");});
+        },function(err){
+          return $q(function(resolve,reject){reject("UpdateFailure",err);  });
+        });
+    };
+
 
 }]);
 
@@ -1158,6 +1279,8 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
 
 		firebaseService.getFire().auth().onAuthStateChanged(function(user) {
 			if (user) {
+				if($rootScope.inProgress){}
+					else{
 				console.log(user);
 				console.log("^User should be logged in!");
 				$rootScope.fetchSingleUser(btoa(user.email)).then(function(obj){
@@ -1165,6 +1288,7 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
 					$rootScope.tryLogIn(user,$scope.refreshLocation);
 					},
 					function(err){growl.error(err, {title: 'ERROR'});});
+					}
 
 		    // User is signed in.
 			}

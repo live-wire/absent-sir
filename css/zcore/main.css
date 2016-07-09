@@ -56,4 +56,21 @@ hr{
 .ng-dirty.ng-not-empty {
 	border:2px solid #eea236;
 }
+.modal-backdrop.am-fade {
+  opacity: .5;
+  transition: opacity .15s linear;
+  &.ng-enter {
+    opacity: 0;
+    &.ng-enter-active {
+      opacity: .5;
+    }
+  }
+  &.ng-leave {
+    opacity: .5;
+    &.ng-leave-active {
+      opacity: 0;
+    }
+  }
+}
+
 body{font-family: 'Lato', sans-serif;}

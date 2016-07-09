@@ -10,6 +10,8 @@
 
 		firebaseService.getFire().auth().onAuthStateChanged(function(user) {
 			if (user) {
+				if($rootScope.inProgress){}
+					else{
 				console.log(user);
 				console.log("^User should be logged in!");
 				$rootScope.fetchSingleUser(btoa(user.email)).then(function(obj){
@@ -17,6 +19,7 @@
 					$rootScope.tryLogIn(user,$scope.refreshLocation);
 					},
 					function(err){growl.error(err, {title: 'ERROR'});});
+					}
 
 		    // User is signed in.
 			}

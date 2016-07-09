@@ -29,7 +29,7 @@ $scope.signUp = function(userVar)
 		$rootScope.fetchSingleUser(encoded).then(function(obj){
 		console.log(obj);
 		if(obj){
-
+			//promise chain -- functions defined below
 			addUser().then(updateGroups).then(updateUserRecords).then(updateEmails).then(function(message){
 				console.log(message);
 				growl.success("USER Creation Success");
@@ -38,7 +38,7 @@ $scope.signUp = function(userVar)
 				$scope.signIn(userVar);
 
 			},function(message){
-				var user = firebaseService.getFire().auth().currentUser;
+					var user = firebaseService.getCurrentUser();
 					if(user){
 					user.delete().then(function() {
 					  // User deleted.
@@ -78,11 +78,8 @@ $scope.signUp = function(userVar)
 			function updateGroups(message){
 				var updates = {};
   				updates[userVar.uid] = true;
-				return firebaseService.getFire().database().ref('Clients/vitu/groups/'+userVar.type).update(updates).then(function(){
-					return $q(function(resolve,reject){resolve(message+" UpdatingGroupsSuccess");});
-				},function(err){
-					return $q(function(resolve,reject){reject("UpdatingGroupsFailure",err);	});
-				});
+  				var path = 'Clients/vitu/groups/'+userVar.type;
+				return firebaseService.update(path,updates);
 			}
 
 			function updateUserRecords(message){
@@ -92,11 +89,8 @@ $scope.signUp = function(userVar)
 				updates[userVar.uid+"/contact"]=userVar.phone;
 				updates[userVar.uid+"/email"]=userVar.email;
 				updates[userVar.uid+"/id"]=userVar.id;
-				return firebaseService.getFire().database().ref('Clients/vitu/'+userVar.type+'s/').update(updates).then(function(){
-					return $q(function(resolve,reject){resolve(message+" UpdatingUserRecordsSuccess");});
-				},function(err){
-					return $q(function(resolve,reject){reject("UpdatingUserRecordsFailure",err);	});
-				});
+				var path = 'Clients/vitu/'+userVar.type+'s/';
+				return firebaseService.update(path,updates);
 			}
 			function updateEmails(message){
 				var emailEncoded = btoa(userVar.email);
@@ -104,16 +98,9 @@ $scope.signUp = function(userVar)
 				updates[emailEncoded+"/name"]=userVar.name;
 				updates[emailEncoded+"/id"]=userVar.id;
 				updates[emailEncoded+"/uid"]=userVar.uid;
-				return firebaseService.getFire().database().ref('Clients/vitu/emails/').update(updates).then(function(){
-					return $q(function(resolve,reject){resolve(message+" UpdatingEmailsSuccess");});
-				},function(err){
-					return $q(function(resolve,reject){reject("UpdatingEmailsFailure",err);	});
-				});
+				var path = 'Clients/vitu/emails/';
+				return firebaseService.update(path,updates);
 			}
-
-
-
-
 
 		}
 		else{

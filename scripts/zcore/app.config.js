@@ -134,6 +134,29 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 		},function(err){return err;});
 	};
 
+	$rootScope.clone=function (obj) {
+    	if (null == obj || "object" != typeof obj) return obj;
+    	var copy = obj.constructor();
+    	for (var attr in obj) {
+        	if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    	}
+    return copy;
+	};
+
+	$rootScope.shallowEquals=function (a, b) {
+	    for(var key in a) {
+	        if(!(key in b) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    for(var key in b) {
+	        if(!(key in a) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    return true;
+	};
+
 
 
 }]);

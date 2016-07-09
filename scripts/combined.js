@@ -580,6 +580,29 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 		},function(err){return err;});
 	};
 
+	$rootScope.clone=function (obj) {
+    	if (null == obj || "object" != typeof obj) return obj;
+    	var copy = obj.constructor();
+    	for (var attr in obj) {
+        	if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    	}
+    return copy;
+	};
+
+	$rootScope.shallowEquals=function (a, b) {
+	    for(var key in a) {
+	        if(!(key in b) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    for(var key in b) {
+	        if(!(key in a) || a[key] !== b[key]) {
+	            return false;
+	        }
+	    }
+	    return true;
+	};
+
 
 
 }]);
@@ -685,6 +708,7 @@ $rootScope.$on("loggedIn", function(){
 		firebaseService.getResponse("Clients/vitu/students/"+uid).then(function(student){
 			if(student==null){student={};}
 			student.type='student';
+			student.uid=uid;
 			$scope.selectedStudent = student;
 			console.log("StudentSelected",student);
 
@@ -694,6 +718,7 @@ $rootScope.$on("loggedIn", function(){
 		firebaseService.getResponse("Clients/vitu/teachers/"+uid).then(function(teacher){
 			if(teacher == null){teacher={};}
 			teacher.type='teacher';
+			teacher.uid=uid;
 			$scope.selectedStudent = teacher;
 			console.log("TeacherSelected",teacher);
 			},function(err){growl.error(err.message,{title:'ERROR'})});
@@ -721,6 +746,40 @@ $rootScope.$on("loggedIn", function(){
 		},function(err){growl.error(err.message,{title:'ERROR'});});
 
 	};
+	$scope.updateUser = function(newUserVar,oldUserVar){
+		if(!$rootScope.shallowEquals(oldUserVar,newUserVar))
+		{
+			var updates={};
+			updates["id"] = newUserVar.id;
+			updates["name"] = newUserVar.name;
+			updateEmails().then(updateUser).then(function(message){
+				growl.success("Update success!");
+				$scope.selectedStudent = $rootScope.clone(newUserVar);
+				},
+				function(err){
+					console.log(err);
+					growl.error("Update Failed");
+				});
+			function updateEmails()
+			{
+				var path = "Clients/vitu/emails/"+btoa(newUserVar.email);
+				return firebaseService.update(path,updates);
+			}
+			function updateUser()
+			{
+				updates["address"] = newUserVar.address;
+				updates["contact"] = newUserVar.contact;
+				var path = "Clients/vitu/"+newUserVar.type+"s/"+newUserVar.uid;
+				console.log(path,"----",updates);
+				return firebaseService.update(path,updates);
+			}
+
+		}
+		else
+			{growl.warning("Nothing to update!");}
+
+	};
+
 	//-----------------------------DIRECTIVE-------------------------------------
 
 
@@ -814,8 +873,8 @@ $scope.signUp = function(userVar)
 		$rootScope.fetchSingleUser(encoded).then(function(obj){
 		console.log(obj);
 		if(obj){
-
-			addUser().then(updateGroups).then(updateStudentRecords).then(updateEmails).then(function(message){
+			//promise chain -- functions defined below
+			addUser().then(updateGroups).then(updateUserRecords).then(updateEmails).then(function(message){
 				console.log(message);
 				growl.success("USER Creation Success");
 				$rootScope.logOut();
@@ -823,7 +882,7 @@ $scope.signUp = function(userVar)
 				$scope.signIn(userVar);
 
 			},function(message){
-				var user = firebaseService.getFire().auth().currentUser;
+					var user = firebaseService.getCurrentUser();
 					if(user){
 					user.delete().then(function() {
 					  // User deleted.
@@ -863,25 +922,19 @@ $scope.signUp = function(userVar)
 			function updateGroups(message){
 				var updates = {};
   				updates[userVar.uid] = true;
-				return firebaseService.getFire().database().ref('Clients/vitu/groups/'+userVar.type).update(updates).then(function(){
-					return $q(function(resolve,reject){resolve(message+" UpdatingGroupsSuccess");});
-				},function(err){
-					return $q(function(resolve,reject){reject("UpdatingGroupsFailure",err);	});
-				});
+  				var path = 'Clients/vitu/groups/'+userVar.type;
+				return firebaseService.update(path,updates);
 			}
 
-			function updateStudentRecords(message){
+			function updateUserRecords(message){
 				var updates = {};
 				updates[userVar.uid+"/name"]=userVar.name;
 				updates[userVar.uid+"/address"]=userVar.address;
 				updates[userVar.uid+"/contact"]=userVar.phone;
 				updates[userVar.uid+"/email"]=userVar.email;
 				updates[userVar.uid+"/id"]=userVar.id;
-				return firebaseService.getFire().database().ref('Clients/vitu/students/').update(updates).then(function(){
-					return $q(function(resolve,reject){resolve(message+" UpdatingStudentRecordsSuccess");});
-				},function(err){
-					return $q(function(resolve,reject){reject("UpdatingStudentRecordsFailure",err);	});
-				});
+				var path = 'Clients/vitu/'+userVar.type+'s/';
+				return firebaseService.update(path,updates);
 			}
 			function updateEmails(message){
 				var emailEncoded = btoa(userVar.email);
@@ -889,16 +942,9 @@ $scope.signUp = function(userVar)
 				updates[emailEncoded+"/name"]=userVar.name;
 				updates[emailEncoded+"/id"]=userVar.id;
 				updates[emailEncoded+"/uid"]=userVar.uid;
-				return firebaseService.getFire().database().ref('Clients/vitu/emails/').update(updates).then(function(){
-					return $q(function(resolve,reject){resolve(message+" UpdatingEmailsSuccess");});
-				},function(err){
-					return $q(function(resolve,reject){reject("UpdatingEmailsFailure",err);	});
-				});
+				var path = 'Clients/vitu/emails/';
+				return firebaseService.update(path,updates);
 			}
-
-
-
-
 
 		}
 		else{
@@ -1034,6 +1080,14 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
 
     this.getCurrentUser = function(){
           return firebase.auth().currentUser;
+    };
+
+    this.update = function(path,updates){
+      return firebase.database().ref(path).update(updates).then(function(){
+          return $q(function(resolve,reject){resolve(path,"UpdateSuccess");});
+        },function(err){
+          return $q(function(resolve,reject){reject("UpdateFailure",err);  });
+        });
     };
 
 

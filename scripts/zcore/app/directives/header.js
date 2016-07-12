@@ -17,6 +17,14 @@ angular.module("absentApp").directive('allstudents', function() {
   };
 });
 
+angular.module("absentApp").directive('attendanceSheet', function() {
+  return {
+    restrict: 'A',
+    transclude: true,
+    templateUrl: '/views/directives/attendance-sheet.html',
+    controller:'AttendanceSheetCtrl'
+  };
+});
 
 
 

@@ -820,55 +820,80 @@ angular.module("absentApp").controller("HeaderCtrl",['$scope','$rootScope',funct
 
 })();
 ;
-(function(){
-angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope','$timeout','firebaseService','$modal','ParsedData',function($scope,$rootScope,$timeout,firebaseService,$modal,ParsedData){
+(function() {
+    angular.module("absentApp").controller("AdminCtrl", ['$scope', '$rootScope', '$timeout', 'firebaseService', '$modal', 'ParsedData', 'growl', function($scope, $rootScope, $timeout, firebaseService, $modal, ParsedData, growl) {
 
-	//Don't touch this
-	if($rootScope.isLoggedIn() && $rootScope.userGlobal.access!='admin')
-	{
-		$rootScope.$emit("CallParentRefreshMethod", {});
-	}
-	else if(!$rootScope.isLoggedIn())
-	{
-		$rootScope.$emit("CallParentLoginMethod",{});
-	}
-	else
-	{
-		$scope.init();
-	}
-	$scope.init =function(){
+        //Don't touch this
+        if ($rootScope.isLoggedIn() && $rootScope.userGlobal.access != 'admin') {
+            $rootScope.$emit("CallParentRefreshMethod", {});
+        } else if (!$rootScope.isLoggedIn()) {
+            $rootScope.$emit("CallParentLoginMethod", {});
+        } else {
+            $scope.init();
+        }
+        $scope.init = function() {
+            $scope.invite = {};
+        };
 
+        $scope.inviteIndividual = function() {
+            var updates = {};
+            var path = 'Classes/';
+            var emailEncoded = btoa($scope.invite.emailInput); //check email validation
+			console.log($scope.invite);
+            
+            updates[emailEncoded + "/type"] = $scope.checked;
 
-	};
+            return firebaseService.update(path, updates).then(function() {
+                console.log("Email-UPDATED");
+                console.log($scope);
+                $scope.$apply(function() { 
+				   // every changes goes here
+				   $scope.checked = false;
+              	   $scope.invite.emailInput= "";
+              	   growl.success("Person added successfully for Invite", {title: 'SUCCESS'});
+				});
+                
+               /* var desiredElement = document.getElementsByClassName("inputTags");
+                var inputElements = angular.element(desiredElement);
+				angular.forEach(inputElements, function(value) {
+	                value.
+	            });
+                console.log(wrappedResult);*/
+                
 
-	$scope.callbackFunction = function(arr){
-		var updates = {};
-		console.log(arr);
-		var path = 'Classes/';
-		angular.forEach(arr, function(value, key) {
-			console.log(value[0]+value[1]);
-			var emailEncoded = btoa(value[0]);
-			updates[emailEncoded+"/type"]=value[1];	
-		});
-		return firebaseService.update(path,updates).then(function(){
-			console.log("Emails-UPDATED");
-		},function(err){console.log("ERROR-EMAILS-UPLOAD",err);});		
-	};
-	 $scope.uploadFile = function(){
-	     var file = $scope.myFile;
-		 console.log('in controller file value is ' );
-	     console.log(file);
-	     var reader = new FileReader();
-	     reader.onload = function(e) {
-	     	ParsedData.getArrayFromPath(reader.result,$scope.callbackFunction);
-	     }
+            }, function(err) {
+                console.log("ERROR-EMAILS-UPLOAD", err);
+                
+            });
+        }
+        $scope.callbackFunction = function(arr) {
+            var updates = {};
+            console.log(arr);
+            var path = 'Classes/';
+            angular.forEach(arr, function(value, key) {
+                console.log(value[0] + value[1]);
+                var emailEncoded = btoa(value[0]);
+                updates[emailEncoded + "/type"] = value[1];
+            });
+            return firebaseService.update(path, updates).then(function() {
+                console.log("Emails-UPDATED");
+            }, function(err) { console.log("ERROR-EMAILS-UPLOAD", err); });
+        };
+        $scope.parseSelectedFile = function() {
+            var file = $scope.myFile;
+            console.log('in controller file value is ');
+            console.log(file);
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                ParsedData.getArrayFromPath(reader.result, $scope.callbackFunction);
+            }
 
-        reader.readAsText(file); 
-	     
-	     /*var uploadUrl = "upload/";
-	     fileUpload.uploadFileToUrl(file, uploadUrl);*/
-	  };	
-	   /* $scope.uploadFiles = function(file, errFiles) {
+            reader.readAsText(file);
+
+            /*var uploadUrl = "upload/";
+            fileUpload.uploadFileToUrl(file, uploadUrl);*/
+        };
+        /* $scope.uploadFiles = function(file, errFiles) {
         $scope.f = file;
         console.log(file);
 
@@ -900,15 +925,15 @@ angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope','$time
                                          evt.loaded / evt.total));
             });
         }   
-     }*/
-
-  
-
-     
+    }*/
 
 
 
-}]);
+
+
+
+
+    }]);
 
 })();
 ;
@@ -1108,12 +1133,14 @@ angular.module("absentApp").directive('fileModel', ['$parse', function ($parse) 
         console.log("element here");
         console.log(element);
         element.bind('change', function(){
-          // console.log(element[0].files[0]);
+          console.log(element[0].files[0]);
 
            scope.$apply(function(){
               modelSetter(scope, element[0].files[0]);
               console.log(scope);
            });
+           console.log(scope);
+           scope.parseSelectedFile();
         });
      }
   };

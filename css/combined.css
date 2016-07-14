@@ -906,3 +906,65 @@ body{font-family: 'Lato', sans-serif;}
     }
   }
 }
+
+.email_label {
+  width: 100%;
+}
+
+.role_label {
+  text-align: center;
+}
+
+.email_holder {
+    font-size: 1.25rem;
+    line-height: normal;
+    padding: .75rem;
+    border: 1px solid #C5C5C5;
+    border-radius: .25rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: 0;
+    color: #555459;
+    width: 100%;
+    max-width: 100%;
+    font-family: Slack-Lato,appleLogo,sans-serif;
+    margin: 0 0 .5rem;
+    -webkit-transition: box-shadow 70ms ease-out,border-color 70ms ease-out;
+    -moz-transition: box-shadow 70ms ease-out,border-color 70ms ease-out;
+    transition: box-shadow 70ms ease-out,border-color 70ms ease-out;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-shadow: none;
+    height: auto;
+}
+/*#admin_invites_header {
+    font-size: 2rem;
+    line-height: 2.5rem;
+    letter-spacing: -.5px;
+}
+
+.admin_invite_row, .admin_invites_custom_message_container {
+    position: relative;
+    padding: .25rem 2.75rem .25rem .5rem;
+    margin: 0 -2.75rem 0 -.5rem;
+    border-radius: .25rem;
+    -webkit-transition: background .1s ease-out 0s;
+    -moz-transition: background .1s ease-out 0s;
+    transition: background .1s ease-out 0s;
+}
+
+.col {
+    display: block;
+    float: left;
+    margin: 0 0 2%;
+    padding-right: 2%;
+}
+
+label {
+    font-weight: 700;
+    margin: 0 0 .25rem;
+    display: block;
+    font-size: 1rem;
+    line-height: 1.5rem;
+}*/

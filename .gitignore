@@ -3,6 +3,9 @@
 .DS_Store
 gen_docs.disable
 test.disable
+combined.js
+combined.css
+
 regression/temp*.html
 performance/temp*.html
 .idea/workspace.xml

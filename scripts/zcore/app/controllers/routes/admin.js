@@ -20,7 +20,12 @@ angular.module("absentApp").controller("AdminCtrl",['$scope','$rootScope','$time
 	};
 
 
+//Registered Classes	
+//Need to get Values from from FireBase 	
+$scope.divTitle = "My Classes";
 
+$scope.classes = [{courseTitle : "Data Structures" , courseId : "CSE 503" , timings : ["Wed 1-3","Fri 1-3"]},{courseTitle : "Data Structures" , courseId : "CSE 503" , timings : ["Wed 1-3","Fri 1-3"]},{courseTitle : "Data Structures" , courseId : "CSE 503" , timings : ["Wed 1-3","Fri 1-3"]}];
+//
 
 
 }]);

@@ -1,0 +1,37 @@
+
+
+<div class="row">
+<div class = "col-xs-12 col-sm-12 col-lg-12 col-md-12">
+<div style="f6f6f6" class="well" >
+		<div class="row">
+			<div style="padding-left: 25px;">
+				<button type="button" class="btn btn-primary"  ng-click= "takeNewAttendance()"> Take Attendance</button>
+			</div>
+		</div>
+		<div class="row">
+			<div style=" !important;overflow-x:auto; padding:25px; padding-top: 0px;">
+			<table class="table col-sm-12 col-md-12 col-lg-12">
+				<thead>
+					<th style = "width: 210px;">Students</th>
+					<th style = "width: 70px;" ng-repeat="eachDate in listOfDisplayedDates"> {{ eachDate }} </th>
+				</thead>
+				<tbody>
+				<tr style="color:#444;" ng-repeat="eachStudent in listOfStudents">
+				<td style = "width: 210px;">{{ eachStudent }}</td>
+				<td style = "width: 70px;" ng-repeat="eachDate in listOfDisplayedDates" > 
+				<button type="button" class="btn" ng-class="{'btn-success': attendanceList[eachDate][eachStudent] == 'P'}" ng-click= "setAttendance({ev: $event, eachStudent: eachStudent , eachDate : eachDate , attendance : 'P'})">P</button>
+				<button type="button" class="btn" ng-class="{'btn-danger': attendanceList[eachDate][eachStudent] == 'A'}" ng-click= "setAttendance({ev: $event, eachStudent: eachStudent , eachDate : eachDate , attendance : 'A'})">A</button><input type="hidden" ng-model="attendanceList[eachDate][eachStudent]"></td>
+				</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
+		<div class="row">
+				<div style="padding-left: 25px;">
+					<button type="button" class="btn btn-primary"  ng-click= "saveAttendance()"> Save </button>
+				</div>
+		</div>
+	</div>
+	
+</div>
+</div>

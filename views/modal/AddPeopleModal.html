@@ -1,0 +1,56 @@
+<div class="modal ng-scope top am-fade-and-slide-top" tabindex="-1" role="dialog" style="z-index: 1050; display: block;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="$hide()">×</button>
+                <h3 id="admin_invites_header" class="light align_center">
+					Invite <span class="admin_invites_header_type normal">People</span><span class="			admin_invites_header_team_name hidden"> to <span class="normal">Random</span></span>
+				</h1><!-- 
+				<h4 class="modal-title">Upload people Information</h4> -->
+			</div>
+			<div class="modal-body" >
+				<div id="invite_0" >
+					<div class="row">
+						<div class="col-md-5">
+							<form name="myForm">
+								<label class="email_label">
+									Email Address<br>
+									<input name="emailHolder" type="email" ng-model="invite.emailInput" class="inputTags form-control email_holder" placeholder="Username" aria-describedby="sizing-addon3" required>
+									<br/>
+								</div>
+								<div class="col-md-1"></div>
+								<div class="col-md-2">
+									<label class="role_label">
+										Student<br>
+										<input class="inputTags" type="radio" ng-model="checked" value="student" name="inputType"  aria-label="...">								
+									</div>
+									<div class="col-md-2">
+										<label class="role_label">
+											Teacher<br>
+											<input class="inputTags" type="radio" ng-model="checked" value="teacher" name="inputType" aria-label="...">								
+										</div>
+										<div class="col-md-2">
+											<br/>
+											<button type="submit" ng-click="inviteIndividual()" class="btn btn-primary" ng-disabled="!(myForm.emailHolder.$valid && (checked == 'teacher' || checked == 'student'))">Invite</button>
+										</div>
+									</form>
+
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="well">
+											<label>Many people to invite? <button class="file-upload btn btn-success" >     
+												<span class="glyphicon glyphicon-upload"></span>       
+												<input type="file" accept=".xls,.xlsx,.csv" file-model = "myFile" class="file-input">Upload CSV here </button>
+											</label>
+										</div>
+									</div>
+										
+								</div>
+								</div>
+
+							</div>
+			
+		</div>
+	</div>
+</div>

@@ -5,7 +5,7 @@ angular.module("absentApp",
 	'ngAnimate',
 	'ui.bootstrap',
 	'angular-growl',
-	'mgcrea.ngStrap'
+	'mgcrea.ngStrap',
 	]);
 
 })();

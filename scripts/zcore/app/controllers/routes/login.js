@@ -1,6 +1,11 @@
 (function(){
 angular.module("absentApp").controller("LoginCtrl",['$scope','$rootScope','firebaseService','$q','$location','growl',function($scope,$rootScope,firebaseService,$q,$location,growl){
 
+
+particlesJS.load('particles-js', 'assets/particles.json', function() {
+      console.log('callback - particles.js config loaded');
+    });
+
 if($rootScope.isLoggedIn())
 {
 	$rootScope.$emit("CallParentRefreshMethod", {});

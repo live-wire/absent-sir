@@ -7,19 +7,12 @@ div.navbar-collapse.collapse {
 	-o-transition: max-height .3s ease;
 	transition: max-height .3s ease;
 }
+html,body{
+  background-color:#444;
+}
 
 div.navbar-collapse.collapse.in {
 	max-height: 2000px;
-}
-
-input.ng-invalid.ng-dirty{
-	border-color: #e96666;
-    outline: 0;
-    outline-color: initial;
-    outline-style: initial;
-    outline-width: 0px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233, 102, 102, 0.6);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233, 102, 102, 0.6);
 }
 
 .stylish-input-group .input-group-addon{
@@ -53,10 +46,7 @@ hr{
 	background:rgba(91, 192, 222,0.2) !important;
 }
 
-.ng-dirty.ng-not-empty {
-	border:2px solid #eea236;
-}
-
+body{font-face: 'veranda', sans-serif;}
 .modal-backdrop.am-fade {
   opacity: .5;
   transition: opacity .50s linear;
@@ -78,7 +68,7 @@ hr{
 .file-upload {
   position: relative;
   overflow: hidden;
-  margin: 10px; 
+  margin: 10px;
 }
 
 .file-upload input.file-input {
@@ -90,7 +80,7 @@ hr{
   font-size: 20px;
   cursor: pointer;
   opacity: 0;
-  filter: alpha(opacity=0); 
+  filter: alpha(opacity=0);
 }
 
 body{font-family: 'Lato', sans-serif;}

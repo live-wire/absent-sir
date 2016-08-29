@@ -1,6 +1,12 @@
 (function(){
 
 angular.module("absentApp").run(['$route', function() {}]);
+angular.module("absentApp").config(function($mdThemingProvider){
+
+	 $mdThemingProvider.theme('docs-dark', 'default')
+      .primaryPalette('blue');
+
+});
 
 angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location','$timeout','growl',function($rootScope,$q,firebaseService,$location,$timeout,growl){
 
@@ -28,6 +34,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 
 
 	};
+
 	//Keep adding initialization functions here as promises
 	$rootScope.init = function(){
 		return $rootScope.fetchEmails().then($rootScope.fetchCourses);
@@ -124,6 +131,11 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 			return true;
 
 	};
+	if(!$rootScope.isLoggedIn()){
+		if($location.search()['account']){
+		$rootScope.globalAccount = $location.search()['account'];
+		}
+	}
 
 	$rootScope.logOut = function(){
 		return firebaseService.logOut().then(function(){

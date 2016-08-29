@@ -1,36 +1,33 @@
-<div class="container">
-<div class="row">
-<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"></div>
+<div id="particles-js" style="position:fixed;top:0%;width:100%;height:100%;" hide-sm hide-xs></div>
+<div uib-collapse="isLogInHidden" style="position:fixed;top:10%;width:100%;height:100%;">
+	<div layout="row" layout-align="center center">
+		<md-content layout-padding="" md-theme="docs-dark" flex-gt-sm="33" flex="80" style="-moz-box-shadow: 1px 2px 3px 1px rgba(0,0,0,0.5);-webkit-box-shadow: 1px 2px 3px 1px rgba(0,0,0,0.5);box-shadow: 1px 2px 3px 1px rgba(0,0,0,0.5);">
+    		<div>
+      			<form name="userForm">
 
-<div uib-collapse="isLogInHidden">
-	<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="padding:40px;background-color:#efefef;border-radius:5px;">
-		<form novalidate name="loginForm" class="css-form">
+					<div layout-gt-sm="row">
+					  <md-input-container flex="100" class="md-block" flex-gt-sm="" style="font-size: 20px;">
+			            <label>Account</label>
+			            <input ng-model="globalAccount" required="" autocomplete="off">
+			          </md-input-container>
+			          </div>
 
-		    <input ng-class="{ error: loginForm.user.email.$invalid}" class="form-control" type="email" ng-model="user.email" placeholder="email" required/><br>
-		    <input type="password" class="form-control" ng-model="user.password" placeholder="Password" required><br>
-		    <button type="submit" ng-click="signIn(user)" class="btn btn-success">Log In</button>
-		    <button class="btn btn-warning" ng-click="isSignUpHidden=!isSignUpHidden;isLogInHidden=!isLogInHidden">Sign Up</button>
+			          <div layout-gt-sm="row">
+			          <md-input-container class="md-block" flex-gt-sm="">
+			            <label>Email</label>
+			            <input type="email" name="userEmail" ng-model="user.email" required="" autocomplete="off"/>
+			          </md-input-container>
+			          <md-input-container class="md-block" flex-gt-sm="">
+			            <label>Password</label>
+			            <input type="password" ng-model="user.password" required="" autocomplete="new-password"/>
+			          </md-input-container>
+			          </div>
+			          <div layout="row" layout-align="center">
+			          <md-button class="md-raised md-primary" ng-click="signIn(user)" type="submit" flex="50" flex-lt-md="100">Log In</md-button>
+			          </div>
 
-		 </form>
+		 		</form>
+		 	</div>
+		 </md-content>
 	</div>
 </div>
-<div uib-collapse="isSignUpHidden">
-	<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="padding:40px;background-color:#efefef;border-radius:5px;">
-	 <form novalidate name="signupForm" class="css-form">
-
-	    <input ng-class="{ error: signupForm.user.email.$invalid}" class="form-control" type="email" ng-model="user.email" placeholder="email" ng-required="true"/><br>
-	    <input type="password" class="form-control" ng-model="user.password" placeholder="Password" ng-required="true"><br>
-	    <input type="text" class="form-control" ng-model="user.name" placeholder="Full Name" ng-required="true"></input><br>
-	    <input type="text" class="form-control" ng-model="user.id" placeholder="Your ID or NA if not valid" ng-required="true"></input><br>
-	    <input type="number" ng-minlength="10" ng-model="user.phone" ng-maxlength="10" class="form-control" name="phone" placeholder="Phone Number" ng-required="true"></input><br>
-	    <textarea class="form-control" rows="3" ng-model="user.address" placeholder="Address" ng-required="true"></textarea><br>
-	    <button type="submit" ng-click="signUp(user)" class="btn btn-warning">Sign Up</button>
-	    <button  ng-click="isLogInHidden=!isLogInHidden;isSignUpHidden=!isSignUpHidden" class="btn btn-success">Log In</button>
-
-	 </form>
-	</div>
-</div>
-
-<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"></div>
-
-</div></div>

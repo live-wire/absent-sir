@@ -7,6 +7,14 @@
         $rootScope.$on("CallParentLoginMethod", function(){
            $scope.refreshLocationLogin();
         });
+        $scope.refreshLocation = function(){
+
+			console.log("redirect",$rootScope.emails);
+
+			$location.path('/'+$rootScope.userGlobal.access);
+
+
+		};
 
 		firebaseService.getFire().auth().onAuthStateChanged(function(user) {
 			if (user) {
@@ -14,9 +22,12 @@
 					else{
 				console.log(user);
 				console.log("^User should be logged in!");
-				$rootScope.fetchSingleUser(btoa(user.email)).then(function(obj){
-					console.log(obj);
-					$rootScope.tryLogIn(user,$scope.refreshLocation);
+				var account = localStorage.getItem("account");
+				$rootScope.fetchSingleUser(btoa(user.email),account).then(function(obj){
+					console.log("SingleUser",obj);
+					if(obj){
+					$rootScope.tryLogIn(user,obj,$scope.refreshLocation);
+					}
 					},
 					function(err){growl.error(err, {title: 'ERROR'});});
 					}
@@ -30,14 +41,6 @@
 		    // No user is signed in.
 			}
 		});
-		$scope.refreshLocation = function(){
-
-			console.log("redirect",$rootScope.emails);
-
-			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code].type);
-
-
-		};
 		$scope.refreshLocationLogin = function(){
 
 			console.log("redirect-login");

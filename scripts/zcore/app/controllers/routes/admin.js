@@ -10,7 +10,7 @@
             $scope.init();
         }
         $scope.init = function() {
-            $scope.invite = {};
+            $rootScope.init().then(function(){$scope.$apply();});
         };
 
         $scope.inviteIndividual = function() {
@@ -101,10 +101,10 @@
                 if (response.status > 0)
                     $scope.errorMsg = response.status + ': ' + response.data;
             }, function (evt) {
-                file.progress = Math.min(100, parseInt(100.0 * 
+                file.progress = Math.min(100, parseInt(100.0 *
                                          evt.loaded / evt.total));
             });
-        }   
+        }
     }*/
 
 

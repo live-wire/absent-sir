@@ -9,30 +9,22 @@ angular.module("absentApp").config(function($mdThemingProvider){
 });
 
 angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location','$timeout','growl',function($rootScope,$q,firebaseService,$location,$timeout,growl){
-
-	$rootScope.tryLogIn = function(userDetails,callbackFunction){
+	$rootScope.userGlobal = {};
+	if(localStorage.getItem("userGlobal"))
+	{
+		$rootScope.userGlobal = JSON.parse(localStorage.getItem("userGlobal"));
+	}
+	$rootScope.tryLogIn = function(userDetails,singleUser,callbackFunction){
 
 			console.log("Trying to log in now");
-			$rootScope.init().then(function(note){
-				console.log(note);
-				console.log("SHOULD BE CALLED AFTER INIT COMPLETE");
-				$rootScope.openPorts();
-
-				$rootScope.userGlobal = {};
 				$rootScope.userGlobal.email = userDetails.email;
 				$rootScope.userGlobal.uid = userDetails.uid;
 				$rootScope.userGlobal.code = btoa(userDetails.email);
-				$rootScope.userGlobal.access = $rootScope.singleUser.type;
-				$rootScope.userGlobal.account = "vitu";
-
+				$rootScope.userGlobal.access = singleUser.type;
+				$rootScope.userGlobal.account = localStorage.getItem("account");
+				localStorage.setItem("userGlobal",JSON.stringify($rootScope.userGlobal));
 				$rootScope.$broadcast("loggedIn", {});
-				callbackFunction();},
-				function(err){console.log("INIT FAILED -- ACCESS DENIED -- ",err);
-				//growl.error("Initialization Failed",{title:"ACCESS DENIED"});
-			});
-
-
-
+				callbackFunction();
 	};
 
 	//Keep adding initialization functions here as promises
@@ -40,10 +32,15 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 		return $rootScope.fetchEmails().then($rootScope.fetchCourses);
 	};
 
-	$rootScope.fetchSingleUser = function(encoded)
+	$rootScope.fetchSingleUser = function(encoded,account)
 	{	console.log("Fetching email",atob(encoded));
-		return firebaseService.getResponse("Clients/vitu/emails/"+encoded)
-		.then(function(obj){$rootScope.singleUser=obj;return obj;},function(err){return err;});
+		if(localStorage.getItem("singleUser"))
+			{
+				//return JSON.parse(localStorage.getItem("singleUser"));
+			}
+
+		return firebaseService.getResponse("Clients/"+account+"/emails/"+encoded)
+		.then(function(obj){if(!obj){throw "NOT FOUND";}$rootScope.singleUser=obj;localStorage.setItem("singleUser",JSON.stringify(obj));return obj;},function(err){return err;});
 	};
 
 	$rootScope.fetchEmails = function(){
@@ -124,7 +121,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 
 
 	$rootScope.isLoggedIn = function(){
-		if($rootScope.userGlobal == undefined){
+		if(!$rootScope.userGlobal.email){
 			return false;
 		}
 		else
@@ -133,14 +130,17 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 	};
 	if(!$rootScope.isLoggedIn()){
 		if($location.search()['account']){
-		$rootScope.globalAccount = $location.search()['account'];
+		$rootScope.userGlobal.account = $location.search()['account'];
 		}
 	}
 
 	$rootScope.logOut = function(){
 		return firebaseService.logOut().then(function(){
-			$rootScope.userGlobal = undefined;
+			$rootScope.userGlobal = {};
 			$rootScope.closePorts();
+			localStorage.removeItem("account");
+			localStorage.removeItem("singleUser");
+			localStorage.removeItem("userGlobal");
 			return "logout success";
 
 		},function(err){return err;});

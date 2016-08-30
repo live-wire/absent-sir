@@ -1,10 +1,10 @@
 (function(){
 angular.module("absentApp").controller("LoginCtrl",['$scope','$rootScope','firebaseService','$q','$location','growl',function($scope,$rootScope,firebaseService,$q,$location,growl){
 
-
 particlesJS.load('particles-js', 'assets/particles.json', function() {
-      console.log('callback - particles.js config loaded');
-    });
+      		console.log('callback - particles.js config loaded');
+    	});
+$scope.loading=false;
 
 if($rootScope.isLoggedIn())
 {
@@ -14,13 +14,27 @@ $scope.isSignUpHidden = true;
 $scope.isLogInHidden = false;
 $scope.signIn=function(userVar)
 {
+	$scope.loading=true;
+	$rootScope.fetchSingleUser(btoa(userVar.email),$rootScope.userGlobal.account).then(function(obj){
 		firebaseService.signIn(userVar.email,userVar.password).then(function(){
+						localStorage.setItem("account",$rootScope.userGlobal.account);
 						console.log("LoggedIn");
+						$scope.loading=false;
+						$scope.$apply();
 					},function(err){
+						$scope.loading=false;
 						console.log(err);
 						growl.error(err.message, {title: 'ERROR'});
+						$scope.$apply();
 			});
+	},function(err){
+		$scope.loading=false;
+		growl.error("User Not Found in this Account!", {title: 'ERROR'});
+		console.log(err);
+		$scope.$apply();
+		});
 };
+
 $scope.signUp = function(userVar)
 {
  if(!$scope.signupForm.$valid)

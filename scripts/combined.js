@@ -509,30 +509,22 @@ angular.module("absentApp").config(function($mdThemingProvider){
 });
 
 angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location','$timeout','growl',function($rootScope,$q,firebaseService,$location,$timeout,growl){
-
-	$rootScope.tryLogIn = function(userDetails,callbackFunction){
+	$rootScope.userGlobal = {};
+	if(localStorage.getItem("userGlobal"))
+	{
+		$rootScope.userGlobal = JSON.parse(localStorage.getItem("userGlobal"));
+	}
+	$rootScope.tryLogIn = function(userDetails,singleUser,callbackFunction){
 
 			console.log("Trying to log in now");
-			$rootScope.init().then(function(note){
-				console.log(note);
-				console.log("SHOULD BE CALLED AFTER INIT COMPLETE");
-				$rootScope.openPorts();
-
-				$rootScope.userGlobal = {};
 				$rootScope.userGlobal.email = userDetails.email;
 				$rootScope.userGlobal.uid = userDetails.uid;
 				$rootScope.userGlobal.code = btoa(userDetails.email);
-				$rootScope.userGlobal.access = $rootScope.singleUser.type;
-				$rootScope.userGlobal.account = "vitu";
-
+				$rootScope.userGlobal.access = singleUser.type;
+				$rootScope.userGlobal.account = localStorage.getItem("account");
+				localStorage.setItem("userGlobal",JSON.stringify($rootScope.userGlobal));
 				$rootScope.$broadcast("loggedIn", {});
-				callbackFunction();},
-				function(err){console.log("INIT FAILED -- ACCESS DENIED -- ",err);
-				//growl.error("Initialization Failed",{title:"ACCESS DENIED"});
-			});
-
-
-
+				callbackFunction();
 	};
 
 	//Keep adding initialization functions here as promises
@@ -540,10 +532,15 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 		return $rootScope.fetchEmails().then($rootScope.fetchCourses);
 	};
 
-	$rootScope.fetchSingleUser = function(encoded)
+	$rootScope.fetchSingleUser = function(encoded,account)
 	{	console.log("Fetching email",atob(encoded));
-		return firebaseService.getResponse("Clients/vitu/emails/"+encoded)
-		.then(function(obj){$rootScope.singleUser=obj;return obj;},function(err){return err;});
+		if(localStorage.getItem("singleUser"))
+			{
+				//return JSON.parse(localStorage.getItem("singleUser"));
+			}
+
+		return firebaseService.getResponse("Clients/"+account+"/emails/"+encoded)
+		.then(function(obj){if(!obj){throw "NOT FOUND";}$rootScope.singleUser=obj;localStorage.setItem("singleUser",JSON.stringify(obj));return obj;},function(err){return err;});
 	};
 
 	$rootScope.fetchEmails = function(){
@@ -624,7 +621,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 
 
 	$rootScope.isLoggedIn = function(){
-		if($rootScope.userGlobal == undefined){
+		if(!$rootScope.userGlobal.email){
 			return false;
 		}
 		else
@@ -633,14 +630,17 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 	};
 	if(!$rootScope.isLoggedIn()){
 		if($location.search()['account']){
-		$rootScope.globalAccount = $location.search()['account'];
+		$rootScope.userGlobal.account = $location.search()['account'];
 		}
 	}
 
 	$rootScope.logOut = function(){
 		return firebaseService.logOut().then(function(){
-			$rootScope.userGlobal = undefined;
+			$rootScope.userGlobal = {};
 			$rootScope.closePorts();
+			localStorage.removeItem("account");
+			localStorage.removeItem("singleUser");
+			localStorage.removeItem("userGlobal");
 			return "logout success";
 
 		},function(err){return err;});
@@ -678,6 +678,7 @@ angular.module("absentApp").run(['$rootScope','$q','firebaseService','$location'
 (function(){
 
 angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
+    var params=window.location.search;
     $routeProvider.
     when('/login', {
         templateUrl: 'views/login.html',
@@ -696,7 +697,7 @@ angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
         controller: 'AdminCtrl'
       }).
       otherwise({
-        redirectTo: '/login'
+        redirectTo: '/login'+params
       });
   }]);
 
@@ -891,7 +892,7 @@ angular.module("absentApp").controller("HeaderCtrl",['$scope','$rootScope',funct
             $scope.init();
         }
         $scope.init = function() {
-            $scope.invite = {};
+            $rootScope.init().then(function(){$scope.$apply();});
         };
 
         $scope.inviteIndividual = function() {
@@ -982,10 +983,10 @@ angular.module("absentApp").controller("HeaderCtrl",['$scope','$rootScope',funct
                 if (response.status > 0)
                     $scope.errorMsg = response.status + ': ' + response.data;
             }, function (evt) {
-                file.progress = Math.min(100, parseInt(100.0 * 
+                file.progress = Math.min(100, parseInt(100.0 *
                                          evt.loaded / evt.total));
             });
-        }   
+        }
     }*/
 
 
@@ -1001,10 +1002,10 @@ angular.module("absentApp").controller("HeaderCtrl",['$scope','$rootScope',funct
 (function(){
 angular.module("absentApp").controller("LoginCtrl",['$scope','$rootScope','firebaseService','$q','$location','growl',function($scope,$rootScope,firebaseService,$q,$location,growl){
 
-
 particlesJS.load('particles-js', 'assets/particles.json', function() {
-      console.log('callback - particles.js config loaded');
-    });
+      		console.log('callback - particles.js config loaded');
+    	});
+$scope.loading=false;
 
 if($rootScope.isLoggedIn())
 {
@@ -1014,13 +1015,27 @@ $scope.isSignUpHidden = true;
 $scope.isLogInHidden = false;
 $scope.signIn=function(userVar)
 {
+	$scope.loading=true;
+	$rootScope.fetchSingleUser(btoa(userVar.email),$rootScope.userGlobal.account).then(function(obj){
 		firebaseService.signIn(userVar.email,userVar.password).then(function(){
+						localStorage.setItem("account",$rootScope.userGlobal.account);
 						console.log("LoggedIn");
+						$scope.loading=false;
+						$scope.$apply();
 					},function(err){
+						$scope.loading=false;
 						console.log(err);
 						growl.error(err.message, {title: 'ERROR'});
+						$scope.$apply();
 			});
+	},function(err){
+		$scope.loading=false;
+		growl.error("User Not Found in this Account!", {title: 'ERROR'});
+		console.log(err);
+		$scope.$apply();
+		});
 };
+
 $scope.signUp = function(userVar)
 {
  if(!$scope.signupForm.$valid)
@@ -1440,6 +1455,14 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
         $rootScope.$on("CallParentLoginMethod", function(){
            $scope.refreshLocationLogin();
         });
+        $scope.refreshLocation = function(){
+
+			console.log("redirect",$rootScope.emails);
+
+			$location.path('/'+$rootScope.userGlobal.access);
+
+
+		};
 
 		firebaseService.getFire().auth().onAuthStateChanged(function(user) {
 			if (user) {
@@ -1447,9 +1470,12 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
 					else{
 				console.log(user);
 				console.log("^User should be logged in!");
-				$rootScope.fetchSingleUser(btoa(user.email)).then(function(obj){
-					console.log(obj);
-					$rootScope.tryLogIn(user,$scope.refreshLocation);
+				var account = localStorage.getItem("account");
+				$rootScope.fetchSingleUser(btoa(user.email),account).then(function(obj){
+					console.log("SingleUser",obj);
+					if(obj){
+					$rootScope.tryLogIn(user,obj,$scope.refreshLocation);
+					}
 					},
 					function(err){growl.error(err, {title: 'ERROR'});});
 					}
@@ -1463,14 +1489,6 @@ angular.module("absentApp").service("firebaseService",['$q',function($q){
 		    // No user is signed in.
 			}
 		});
-		$scope.refreshLocation = function(){
-
-			console.log("redirect",$rootScope.emails);
-
-			$location.path('/'+$rootScope.emails[$rootScope.userGlobal.code].type);
-
-
-		};
 		$scope.refreshLocationLogin = function(){
 
 			console.log("redirect-login");

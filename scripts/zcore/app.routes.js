@@ -1,6 +1,7 @@
 (function(){
 
 angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
+    var params=window.location.search;
     $routeProvider.
     when('/login', {
         templateUrl: 'views/login.html',
@@ -19,7 +20,7 @@ angular.module("absentApp").config(['$routeProvider', function($routeProvider) {
         controller: 'AdminCtrl'
       }).
       otherwise({
-        redirectTo: '/login'
+        redirectTo: '/login'+params
       });
   }]);
 

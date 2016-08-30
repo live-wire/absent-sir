@@ -3,30 +3,34 @@
 	<div layout="row" layout-align="center center">
 		<md-content layout-padding="" md-theme="docs-dark" flex-gt-sm="33" flex="80" style="-moz-box-shadow: 1px 2px 3px 1px rgba(0,0,0,0.5);-webkit-box-shadow: 1px 2px 3px 1px rgba(0,0,0,0.5);box-shadow: 1px 2px 3px 1px rgba(0,0,0,0.5);">
     		<div>
-      			<form name="userForm">
+      			<form name="userForm" ng-submit="signIn(user)">
 
 					<div layout-gt-sm="row">
 					  <md-input-container flex="100" class="md-block" flex-gt-sm="" style="font-size: 20px;">
 			            <label>Account</label>
-			            <input ng-model="globalAccount" required="" autocomplete="off">
+			            <input ng-model="userGlobal.account" required="" autocomplete="off" ng-disabled="loading"/>
 			          </md-input-container>
 			          </div>
 
 			          <div layout-gt-sm="row">
 			          <md-input-container class="md-block" flex-gt-sm="">
 			            <label>Email</label>
-			            <input type="email" name="userEmail" ng-model="user.email" required="" autocomplete="off"/>
+			            <input type="email" name="userEmail" ng-model="user.email" required="" autocomplete="off" ng-disabled="loading"/>
 			          </md-input-container>
 			          <md-input-container class="md-block" flex-gt-sm="">
 			            <label>Password</label>
-			            <input type="password" ng-model="user.password" required="" autocomplete="new-password"/>
+			            <input type="password" ng-model="user.password" required="" autocomplete="new-password" ng-disabled="loading"/>
 			          </md-input-container>
 			          </div>
 			          <div layout="row" layout-align="center">
-			          <md-button class="md-raised md-primary" ng-click="signIn(user)" type="submit" flex="50" flex-lt-md="100">Log In</md-button>
+			          <md-button class="md-raised md-primary" type="submit" flex="50" flex-lt-md="100" ng-disabled="loading">Log In</md-button>
 			          </div>
+			          <div layout="row" layout-align="center" ng-if="loading">
+      					<md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    				 </div>
 
 		 		</form>
+
 		 	</div>
 		 </md-content>
 	</div>
